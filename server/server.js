@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const db = require('./config/connection');
 const routes = require('./routes');
-const mongoose = require('mongoose');
+
 
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schemas');
@@ -23,12 +23,11 @@ app.use(routes);
 
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-}
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
-});
+  const root = require('path').join(__dirname, 'client', 'build')
+  app.use(express.static(root));
+  app.get("*", (req, res) => {
+      res.sendFile('index.html', { root });
+})
 
 db.once('open', () => {
   app.listen(PORT, () => {
